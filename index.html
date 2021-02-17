@@ -64,7 +64,7 @@
         speechConfig = SpeechSDK.SpeechConfig.fromSubscription("ef6493e9b9774ae1b9a9f08f652deba7", "westus");
         
         // create pronunciation assessment config, set grading system, granularity and if enable miscue based on your requirement.
-        var pronunciationAssessmentConfig = new SpeechSDK.PronunciationAssessmentConfig(referenceText.value, 2, 1, true);
+        var pronunciationAssessmentConfig = new SpeechSDK.PronunciationAssessmentConfig(referenceText.value, SpeechSDK.PronunciationAssessmentGradingSystem.HundredMark, SpeechSDK.PronunciationAssessmentGranularity.Phoneme, true);
         
         var audioConfig  = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
         var speechRecognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
@@ -72,6 +72,7 @@
         pronunciationAssessmentConfig.applyTo(speechRecognizer);
         
         speechRecognizer.recognizeOnceAsync((result) => {
+            startRecognizeOnceAsyncButton.disabled = false;
             var pronunciationAssessmentResult = SpeechSDK.PronunciationAssessmentResult.fromResult(result);
             phraseDiv.innerHTML += "RECOGNIZED: Text= " + referenceText.value + "\r\n";
             phraseDiv.innerHTML += "PRONUNCIATION ASSESSMENT RESULTS:" + "\r\n";
