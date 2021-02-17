@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>怪盜coder</title>
+  <meta charset="utf-8" />
+</head>
+<body style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; font-size:13px;">
+  <!-- <uidiv> -->
+  
+  
+  <div>
+    <table width="100%">
+      <tr>
+        <td></td>
+        <td><h1 style="font-weight:500;">Microsoft Cognitive Services Speech SDK JavaScript 語音發音準確測試</h1></td>
+      </tr>
+        <td align="right">referenceText(輸入要測試之單字):</td>
+        <td>
+            <input id="referenceText" type="text" size="60" value="">Enter reference text you want to assess
+        </td>
+      </tr>
+      <tr>
+        <td></td>
+        <td><button id="startRecognizeOnceAsyncButton">Start recognition</button></td>
+      </tr>
+      <tr>
+        <td align="right" valign="top">Results</td>
+        <td><textarea id="phraseDiv" style="display: inline-block;width:500px;height:200px"></textarea></td>
+      </tr>
+    </table>
+  </div>
+  <!-- </uidiv> -->
+
+  <!-- <speechsdkref> -->
+  <!-- Speech SDK reference sdk. -->
+  <script src="microsoft.cognitiveservices.speech.sdk.bundle.js"></script>
+  <!-- </speechsdkref> -->
+
+ 
+
+  <!-- <quickstartcode> -->
+  <!-- Speech SDK USAGE -->
+  <script>
+    // status fields and start button in UI
+    var phraseDiv;
+    var startRecognizeOnceAsyncButton;
+
+    // subscription key and region for speech services.
+    var SpeechSDK;
+    var recognizer;
+
+    // referenceText
+    var referenceText;
+    
+    document.addEventListener("DOMContentLoaded", function () {
+      startRecognizeOnceAsyncButton = document.getElementById("startRecognizeOnceAsyncButton");
+      phraseDiv = document.getElementById("phraseDiv");
+      referenceText = document.getElementById("referenceText");
+
+      startRecognizeOnceAsyncButton.addEventListener("click", function () {
+        startRecognizeOnceAsyncButton.disabled = true;
+        phraseDiv.innerHTML = "";
+        
+        speechConfig = SpeechSDK.SpeechConfig.fromSubscription("ef6493e9b9774ae1b9a9f08f652deba7", "westus");
+        
+        // create pronunciation assessment config, set grading system, granularity and if enable miscue based on your requirement.
+        var pronunciationAssessmentConfig = new SpeechSDK.PronunciationAssessmentConfig(referenceText.value, 2, 1, true);
+        
+        var audioConfig  = SpeechSDK.AudioConfig.fromDefaultMicrophoneInput();
+        var speechRecognizer = new SpeechSDK.SpeechRecognizer(speechConfig, audioConfig);
+        // apply the pronunciation assessment configuration to the speech recognizer
+        pronunciationAssessmentConfig.applyTo(speechRecognizer);
+        
+        speechRecognizer.recognizeOnceAsync((result) => {
+            var pronunciationAssessmentResult = SpeechSDK.PronunciationAssessmentResult.fromResult(result);
+            phraseDiv.innerHTML += "RECOGNIZED: Text= " + referenceText.value + "\r\n";
+            phraseDiv.innerHTML += "PRONUNCIATION ASSESSMENT RESULTS:" + "\r\n";
+            phraseDiv.innerHTML += "Accuracy score(語音的發音精確度): " + pronunciationAssessmentResult.accuracyScore.toString() + "\r\n";
+            phraseDiv.innerHTML += "Pronunciation score(表示指定語音之發音品質的整體分數): " + pronunciationAssessmentResult.pronunciationScore.toString() + "\r\n";
+            phraseDiv.innerHTML += "Completeness score(語音的完整性) : " + pronunciationAssessmentResult.completenessScore.toString() + "\r\n";
+            phraseDiv.innerHTML += "FluencyScore(指定語音的流暢度): " + pronunciationAssessmentResult.fluencyScore.toString() + "\r\n";
+        },
+        {});
+
+        
+      });
+
+      
+    });
+  </script>
+  <!-- </quickstartcode> -->
+</body>
+</html>
